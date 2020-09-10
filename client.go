@@ -62,7 +62,7 @@ var (
 	jsonCheck = regexp.MustCompile(`(?i:(application|text)/(json|.*\+json|json\-.*)(;|$))`)
 	xmlCheck  = regexp.MustCompile(`(?i:(application|text)/(xml|.*\+xml)(;|$))`)
 
-	hdrUserAgentValue = "go-resty/" + Version + " (https://github.com/go-resty/resty)"
+	hdrUserAgentValue = "go-resty/" + Version + " (https://github.com/tmsong/go-resty)"
 	bufPool           = &sync.Pool{New: func() interface{} { return &bytes.Buffer{} }}
 )
 
@@ -943,8 +943,8 @@ func createClient(hc *http.Client) *Client {
 		FormData:           url.Values{},
 		Header:             http.Header{},
 		Cookies:            make([]*http.Cookie, 0),
-		RetryWaitTime:      defaultWaitTime,
-		RetryMaxWaitTime:   defaultMaxWaitTime,
+		RetryWaitTime:      DefaultWaitTime,
+		RetryMaxWaitTime:   DefaultMaxWaitTime,
 		JSONMarshal:        json.Marshal,
 		JSONUnmarshal:      json.Unmarshal,
 		jsonEscapeHTML:     true,

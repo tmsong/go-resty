@@ -11,12 +11,6 @@ import (
 	"time"
 )
 
-const (
-	defaultMaxRetries  = 3
-	defaultWaitTime    = time.Duration(100) * time.Millisecond
-	defaultMaxWaitTime = time.Duration(2000) * time.Millisecond
-)
-
 type (
 	// Option is to create convenient retry options like wait time, max retries, etc.
 	Option func(*Options)
@@ -74,9 +68,9 @@ func RetryConditions(conditions []RetryConditionFunc) Option {
 func Backoff(operation func() (*Response, error), options ...Option) error {
 	// Defaults
 	opts := Options{
-		maxRetries:      defaultMaxRetries,
-		waitTime:        defaultWaitTime,
-		maxWaitTime:     defaultMaxWaitTime,
+		maxRetries:      DefaultMaxRetries,
+		waitTime:        DefaultWaitTime,
+		maxWaitTime:     DefaultMaxWaitTime,
 		retryConditions: []RetryConditionFunc{},
 	}
 

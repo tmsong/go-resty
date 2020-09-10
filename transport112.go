@@ -10,13 +10,12 @@ import (
 	"net"
 	"net/http"
 	"runtime"
-	"time"
 )
 
 func createTransport(localAddr net.Addr) *http.Transport {
 	dialer := &net.Dialer{
-		Timeout:   30 * time.Second,
-		KeepAlive: 30 * time.Second,
+		Timeout:   DefaultTransportTimeout,
+		KeepAlive: DefaultTransportKeepAlive,
 		DualStack: true,
 	}
 	if localAddr != nil {
@@ -25,10 +24,10 @@ func createTransport(localAddr net.Addr) *http.Transport {
 	return &http.Transport{
 		Proxy:                 http.ProxyFromEnvironment,
 		DialContext:           dialer.DialContext,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
+		MaxIdleConns:          DefaultTransportMaxIdleConns,
+		IdleConnTimeout:       DefaultTransportIdleConnTimeout,
+		TLSHandshakeTimeout:   DefaultTransportTLSHandshakeTimeout,
+		ExpectContinueTimeout: DefaultTransportExpectContinueTimeout,
 		MaxIdleConnsPerHost:   runtime.GOMAXPROCS(0) + 1,
 	}
 }
