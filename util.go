@@ -13,6 +13,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -122,16 +123,60 @@ func Unmarshalc(c *Client, ct string, b []byte, d interface{}) (err error) {
 // instance for debug logging. It sent to request log callback before resty
 // actually logs the information.
 type RequestLog struct {
-	Header http.Header
-	Body   string
+	maxBodyLen int
+	r          *Request
+}
+
+func (log *RequestLog) UrlPath() string {
+	return log.r.RawRequest.URL.Path
+}
+
+func (log *RequestLog) UrlString() string {
+	return log.r.RawRequest.URL.String()
+}
+
+func (log *RequestLog) UrlQuery() url.Values {
+	return log.r.RawRequest.URL.Query()
+}
+
+func (log *RequestLog) Host() string {
+	return log.r.RawRequest.Host
+}
+
+func (log *RequestLog) RequestURI() string {
+	return log.r.RawRequest.RequestURI
+}
+
+func (log *RequestLog) ReqHeader() http.Header {
+	return copyHeaders(log.r.Header)
+}
+
+func (log *ResponseLog) ReqMethod() string {
+	return log.r.Method
+}
+
+func (log *RequestLog) ReqBody(maxLen int64, hideBody bool) string {
+	return log.r.fmtBodyString(maxLen, hideBody)
 }
 
 // ResponseLog struct is used to collected information from resty response
 // instance for debug logging. It sent to response log callback before resty
 // actually logs the information.
 type ResponseLog struct {
-	Header http.Header
-	Body   string
+	RequestLog
+	res *Response
+}
+
+func (log *ResponseLog) ResHeader() http.Header {
+	return copyHeaders(log.res.Header())
+}
+
+func (log *ResponseLog) ResCode() int {
+	return log.res.StatusCode()
+}
+
+func (log *ResponseLog) ResBody(maxLen int64, hideBody bool) string {
+	return log.res.fmtBodyString(maxLen, hideBody)
 }
 
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾

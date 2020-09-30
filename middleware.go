@@ -18,7 +18,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
-	"time"
 )
 
 const debugRequestLogKey = "__restyDebugRequestLog"
@@ -246,10 +245,8 @@ func addCredentials(c *Client, r *Request) error {
 		isBasicAuth = true
 	}
 
-	if !c.DisableWarn {
-		if isBasicAuth && !strings.HasPrefix(r.URL, "https") {
-			c.log.Warnf("Using Basic Auth in HTTP mode is not secure, use HTTPS")
-		}
+	if isBasicAuth && !strings.HasPrefix(r.URL, "https") {
+		c.log.Warnf("Using Basic Auth in HTTP mode is not secure, use HTTPS")
 	}
 
 	// Set the Authorization Header Scheme
@@ -273,28 +270,11 @@ func addCredentials(c *Client, r *Request) error {
 }
 
 func requestLogger(c *Client, r *Request) error {
-	if c.Debug {
-		rr := r.RawRequest
-		rl := &RequestLog{Header: copyHeaders(rr.Header), Body: r.fmtBodyString(c.debugBodySizeLimit)}
-		if c.requestLog != nil {
-			if err := c.requestLog(rl); err != nil {
-				return err
-			}
+	if c.PrintLog && c.requestLog != nil {
+		if err := c.requestLog(&RequestLog{r: r}); err != nil {
+			return err
 		}
-		// fmt.Sprintf("COOKIES:\n%s\n", composeCookies(c.GetClient().Jar, *rr.URL)) +
-
-		reqLog := "\n==============================================================================\n" +
-			"~~~ REQUEST ~~~\n" +
-			fmt.Sprintf("%s  %s  %s\n", r.Method, rr.URL.RequestURI(), rr.Proto) +
-			fmt.Sprintf("HOST   : %s\n", rr.URL.Host) +
-			fmt.Sprintf("HEADERS:\n%s\n", composeHeaders(c, r, rl.Header)) +
-			fmt.Sprintf("BODY   :\n%v\n", rl.Body) +
-			"------------------------------------------------------------------------------\n"
-
-		r.initValuesMap()
-		r.values[debugRequestLogKey] = reqLog
 	}
-
 	return nil
 }
 
@@ -303,32 +283,14 @@ func requestLogger(c *Client, r *Request) error {
 //_______________________________________________________________________
 
 func responseLogger(c *Client, res *Response) error {
-	if c.Debug {
-		rl := &ResponseLog{Header: copyHeaders(res.Header()), Body: res.fmtBodyString(c.debugBodySizeLimit)}
-		if c.responseLog != nil {
-			if err := c.responseLog(rl); err != nil {
-				return err
-			}
+	if c.PrintLog && c.responseLog != nil {
+		if err := c.responseLog(&ResponseLog{
+			RequestLog: RequestLog{r: res.Request},
+			res:        res,
+		}); err != nil {
+			return err
 		}
-
-		debugLog := res.Request.values[debugRequestLogKey].(string)
-		debugLog += "~~~ RESPONSE ~~~\n" +
-			fmt.Sprintf("STATUS       : %s\n", res.Status()) +
-			fmt.Sprintf("PROTO        : %s\n", res.RawResponse.Proto) +
-			fmt.Sprintf("RECEIVED AT  : %v\n", res.ReceivedAt().Format(time.RFC3339Nano)) +
-			fmt.Sprintf("TIME DURATION: %v\n", res.Time()) +
-			"HEADERS      :\n" +
-			composeHeaders(c, res.Request, rl.Header) + "\n"
-		if res.Request.isSaveResponse {
-			debugLog += fmt.Sprintf("BODY         :\n***** RESPONSE WRITTEN INTO FILE *****\n")
-		} else {
-			debugLog += fmt.Sprintf("BODY         :\n%v\n", rl.Body)
-		}
-		debugLog += "==============================================================================\n"
-
-		c.log.Debugf("%s", debugLog)
 	}
-
 	return nil
 }
 

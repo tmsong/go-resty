@@ -722,21 +722,24 @@ type SRVRecord struct {
 // Request Unexported methods
 //_______________________________________________________________________
 
-func (r *Request) fmtBodyString(sl int64) (body string) {
-	body = "***** NO CONTENT *****"
+func (r *Request) fmtBodyString(sl int64, hideBody bool) (body string) {
+	if hideBody {
+		return "HIDDEN"
+	}
+	body = "NO CONTENT"
 	if !isPayloadSupported(r.Method, r.client.AllowGetMethodPayload) {
 		return
 	}
 
 	if _, ok := r.Body.(io.Reader); ok {
-		body = "***** BODY IS io.Reader *****"
+		body = "BODY IS io.Reader"
 		return
 	}
 
 	// multipart or form-data
 	if r.isMultiPart || r.isFormData {
 		bodySize := int64(r.bodyBuf.Len())
-		if bodySize > sl {
+		if sl > 0 && bodySize > sl {
 			body = fmt.Sprintf("***** REQUEST TOO LARGE (size - %d) *****", bodySize)
 			return
 		}
@@ -779,7 +782,7 @@ func (r *Request) fmtBodyString(sl int64) (body string) {
 
 	if len(body) > 0 {
 		bodySize := int64(len([]byte(body)))
-		if bodySize > sl {
+		if sl > 0 && bodySize > sl {
 			body = fmt.Sprintf("***** REQUEST TOO LARGE (size - %d) *****", bodySize)
 		}
 	}

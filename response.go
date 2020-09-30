@@ -153,10 +153,13 @@ func (r *Response) setReceivedAt() {
 	}
 }
 
-func (r *Response) fmtBodyString(sl int64) string {
+func (r *Response) fmtBodyString(sl int64, hideBody bool) string {
+	if hideBody {
+		return "HIDDEN"
+	}
 	if r.body != nil {
-		if int64(len(r.body)) > sl {
-			return fmt.Sprintf("***** RESPONSE TOO LARGE (size - %d) *****", len(r.body))
+		if sl > 0 && int64(len(r.body)) > sl {
+			return fmt.Sprintf("RESPONSE TOO LARGE (size - %d)", len(r.body))
 		}
 		ct := r.Header().Get(hdrContentTypeKey)
 		if IsJSONType(ct) {
@@ -164,12 +167,12 @@ func (r *Response) fmtBodyString(sl int64) string {
 			defer releaseBuffer(out)
 			err := json.Indent(out, r.body, "", "   ")
 			if err != nil {
-				return fmt.Sprintf("*** Error: Unable to format response body - \"%s\" ***\n\nLog Body as-is:\n%s", err, r.String())
+				return fmt.Sprintf("Format json response body failed: %v, Body is: %s", err, r.String())
 			}
 			return out.String()
 		}
 		return r.String()
 	}
 
-	return "***** NO CONTENT *****"
+	return "NO CONTENT"
 }

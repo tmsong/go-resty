@@ -564,7 +564,7 @@ func dc() *Client {
 
 func dcl() *Client {
 	c := New().
-		SetDebug(true).
+		SetPrintLog(true).
 		outputLogTo(ioutil.Discard)
 	return c
 }
@@ -575,7 +575,7 @@ func dcr() *Request {
 
 func dclr() *Request {
 	c := dc().
-		SetDebug(true).
+		SetPrintLog(true).
 		outputLogTo(ioutil.Discard)
 	return c.R()
 }

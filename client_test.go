@@ -338,9 +338,6 @@ func TestClientOptions(t *testing.T) {
 	client.SetAuthToken("AC75BD37F019E08FBC594900518B4F7E")
 	assertEqual(t, "AC75BD37F019E08FBC594900518B4F7E", client.Token)
 
-	client.SetDisableWarn(true)
-	assertEqual(t, client.DisableWarn, true)
-
 	client.SetRetryCount(3)
 	assertEqual(t, 3, client.RetryCount)
 
@@ -379,8 +376,8 @@ func TestClientOptions(t *testing.T) {
 	})
 	client.SetContentLength(true)
 
-	client.SetDebug(true)
-	assertEqual(t, client.Debug, true)
+	client.SetPrintLog(true)
+	assertEqual(t, client.PrintLog, true)
 
 	var sl int64 = 1000000
 	client.SetDebugBodyLimit(sl)
@@ -482,7 +479,7 @@ func TestDebugBodySizeLimit(t *testing.T) {
 
 	var lgr bytes.Buffer
 	c := dc()
-	c.SetDebug(true)
+	c.SetPrintLog(true)
 	c.SetDebugBodyLimit(30)
 	c.outputLogTo(&lgr)
 
@@ -550,21 +547,10 @@ func TestLogCallbacks(t *testing.T) {
 	ts := createAuthServer(t)
 	defer ts.Close()
 
-	c := New().SetDebug(true)
+	c := New().SetPrintLog(true)
 
 	var lgr bytes.Buffer
 	c.outputLogTo(&lgr)
-
-	c.OnRequestLog(func(r *RequestLog) error {
-		// masking authorzation header
-		r.Header.Set("Authorization", "Bearer *******************************")
-		return nil
-	})
-	c.OnResponseLog(func(r *ResponseLog) error {
-		r.Header.Add("X-Debug-Resposne-Log", "Modified :)")
-		r.Body += "\nModified the response body content"
-		return nil
-	})
 
 	c.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
 		SetAuthToken("004DDB79-6801-4587-B976-F093E6AC44FF")
@@ -583,7 +569,9 @@ func TestLogCallbacks(t *testing.T) {
 	assertEqual(t, true, strings.Contains(logInfo, "Modified the response body content"))
 
 	// Error scenario
-	c.OnRequestLog(func(r *RequestLog) error { return errors.New("request test error") })
+	c.OnRequestLog(func(r *RequestLog) error {
+		return errors.New("request test error")
+	})
 	resp, err = c.R().
 		SetAuthToken("004DDB79-6801-4587-B976-F093E6AC44FF-Request").
 		Get(ts.URL + "/profile")
@@ -591,7 +579,9 @@ func TestLogCallbacks(t *testing.T) {
 	assertNil(t, resp)
 
 	c.OnRequestLog(nil)
-	c.OnResponseLog(func(r *ResponseLog) error { return errors.New("response test error") })
+	c.OnResponseLog(func(r *ResponseLog) error {
+		return errors.New("response test error")
+	})
 	resp, err = c.R().
 		SetAuthToken("004DDB79-6801-4587-B976-F093E6AC44FF-Request").
 		Get(ts.URL + "/profile")
@@ -611,4 +601,3 @@ func TestNewWithLocalAddr(t *testing.T) {
 	assertNil(t, err)
 	assertEqual(t, resp.String(), "TestGet: text response")
 }
-

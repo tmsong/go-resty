@@ -98,8 +98,7 @@ type Client struct {
 	AuthScheme            string
 	Cookies               []*http.Cookie
 	Error                 reflect.Type
-	Debug                 bool
-	DisableWarn           bool
+	PrintLog              bool
 	AllowGetMethodPayload bool
 	RetryCount            int
 	RetryWaitTime         time.Duration
@@ -395,12 +394,12 @@ func (c *Client) SetPreRequestHook(h PreRequestHook) *Client {
 	return c
 }
 
-// SetDebug method enables the debug mode on Resty client. Client logs details of every request and response.
+// SetPrintLog method enables the debug mode on Resty client. Client logs details of every request and response.
 // For `Request` it logs information such as HTTP verb, Relative URL path, Host, Headers, Body if it has one.
 // For `Response` it logs information such as Status, Response Time, Headers, Body if it has one.
-//		client.SetDebug(true)
-func (c *Client) SetDebug(d bool) *Client {
-	c.Debug = d
+//		client.SetPrintLog(true)
+func (c *Client) SetPrintLog(p bool) *Client {
+	c.PrintLog = p
 	return c
 }
 
@@ -430,15 +429,6 @@ func (c *Client) OnResponseLog(rl ResponseLogCallback) *Client {
 			functionName(c.responseLog), functionName(rl))
 	}
 	c.responseLog = rl
-	return c
-}
-
-// SetDisableWarn method disables the warning message on Resty client.
-//
-// For Example: Resty warns the user when BasicAuth used on non-TLS mode.
-//		client.SetDisableWarn(true)
-func (c *Client) SetDisableWarn(d bool) *Client {
-	c.DisableWarn = d
 	return c
 }
 
@@ -832,6 +822,12 @@ func (c *Client) execute(req *Request) (*Response, error) {
 		Request:     req,
 		RawResponse: resp,
 	}
+
+	defer func() {
+		if err = responseLogger(c, response); err != nil {
+			c.log.Warnf("Calling response logger err:", err)
+		}
+	}()
 
 	if err != nil || req.notParseResponse || c.notParseResponse {
 		response.setReceivedAt()

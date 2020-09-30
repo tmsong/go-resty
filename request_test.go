@@ -73,7 +73,7 @@ func TestGetClientParamRequestParam(t *testing.T) {
 	c := dc()
 	c.SetQueryParam("client_param", "true").
 		SetQueryParams(map[string]string{"req_1": "jeeva", "req_3": "jeeva3"}).
-		SetDebug(true)
+		SetPrintLog(true)
 	c.outputLogTo(ioutil.Discard)
 
 	resp, err := c.R().
@@ -233,7 +233,7 @@ func TestPostJSONStructInvalidLogin(t *testing.T) {
 	defer ts.Close()
 
 	c := dc()
-	c.SetDebug(false)
+	c.SetPrintLog(false)
 
 	resp, err := c.R().
 		SetHeader(hdrContentTypeKey, "application/json; charset=utf-8").
@@ -280,7 +280,7 @@ func TestPostJSONMapSuccess(t *testing.T) {
 	defer ts.Close()
 
 	c := dc()
-	c.SetDebug(false)
+	c.SetPrintLog(false)
 
 	resp, err := c.R().
 		SetBody(map[string]interface{}{"username": "testuser", "password": "testpass"}).
@@ -348,7 +348,7 @@ func TestForceContentTypeForGH276andGH240(t *testing.T) {
 
 	retried := 0
 	c := dc()
-	c.SetDebug(false)
+	c.SetPrintLog(false)
 	c.SetRetryCount(3)
 	c.SetRetryAfter(RetryAfterFunc(func(*Client, *Response) (time.Duration, error) {
 		retried++
@@ -375,7 +375,7 @@ func TestPostXMLStringSuccess(t *testing.T) {
 	defer ts.Close()
 
 	c := dc()
-	c.SetDebug(false)
+	c.SetPrintLog(false)
 
 	resp, err := c.R().
 		SetHeader(hdrContentTypeKey, "application/xml").
@@ -436,7 +436,7 @@ func TestPostXMLBytesSuccess(t *testing.T) {
 	defer ts.Close()
 
 	c := dc()
-	c.SetDebug(false)
+	c.SetPrintLog(false)
 
 	resp, err := c.R().
 		SetHeader(hdrContentTypeKey, "application/xml").
@@ -601,7 +601,7 @@ func TestFormData(t *testing.T) {
 	c := dc()
 	c.SetFormData(map[string]string{"zip_code": "00000", "city": "Los Angeles"}).
 		SetContentLength(true).
-		SetDebug(true)
+		SetPrintLog(true)
 	c.outputLogTo(ioutil.Discard)
 
 	resp, err := c.R().
@@ -623,7 +623,7 @@ func TestMultiValueFormData(t *testing.T) {
 	}
 
 	c := dc()
-	c.SetContentLength(true).SetDebug(true)
+	c.SetContentLength(true).SetPrintLog(true)
 	c.outputLogTo(ioutil.Discard)
 
 	resp, err := c.R().
@@ -642,8 +642,7 @@ func TestFormDataDisableWarn(t *testing.T) {
 	c := dc()
 	c.SetFormData(map[string]string{"zip_code": "00000", "city": "Los Angeles"}).
 		SetContentLength(true).
-		SetDebug(true).
-		SetDisableWarn(true)
+		SetPrintLog(true)
 	c.outputLogTo(ioutil.Discard)
 
 	resp, err := c.R().
@@ -883,7 +882,7 @@ func TestGetWithCookies(t *testing.T) {
 	defer ts.Close()
 
 	c := dc()
-	c.SetHostURL(ts.URL).SetDebug(true)
+	c.SetHostURL(ts.URL).SetPrintLog(true)
 
 	tu, _ := url.Parse(ts.URL)
 	c.GetClient().Jar.SetCookies(tu, []*http.Cookie{
@@ -956,7 +955,7 @@ func TestPutJSONString(t *testing.T) {
 		return nil
 	})
 
-	client.SetDebug(true)
+	client.SetPrintLog(true)
 	client.outputLogTo(ioutil.Discard)
 
 	resp, err := client.R().
@@ -1357,7 +1356,7 @@ func TestOutputFileWithBaseDirAndRelativePath(t *testing.T) {
 	client := dc().
 		SetRedirectPolicy(FlexibleRedirectPolicy(10)).
 		SetOutputDirectory(filepath.Join(getTestDataPath(), "dir-sample")).
-		SetDebug(true)
+		SetPrintLog(true)
 	client.outputLogTo(ioutil.Discard)
 
 	resp, err := client.R().
@@ -1619,7 +1618,7 @@ func TestPathParamURLInput(t *testing.T) {
 	ts := createGetServer(t)
 	defer ts.Close()
 
-	c := dc().SetDebug(true).
+	c := dc().SetPrintLog(true).
 		SetHostURL(ts.URL).
 		SetPathParams(map[string]string{
 			"userId": "sample@sample.com",
@@ -1731,7 +1730,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// upload an image with more than 512 bytes
 	output := bytes.NewBufferString("")
-	resp, err := New().SetDebug(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err := New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
 		SetFile("file", filepath.Join(getTestDataPath(), "test-img.png")).
 		SetHeader("Content-Type", "image/png").
 		Post(ts.URL + "/upload")
@@ -1741,7 +1740,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// upload a text file with no more than 512 bytes
 	output = bytes.NewBufferString("")
-	resp, err = New().SetDebug(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
 		SetFile("file", filepath.Join(getTestDataPath(), "text-file.txt")).
 		SetHeader("Content-Type", "text/plain").
 		Post(ts.URL + "/upload")
@@ -1754,7 +1753,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// post form with more than 512 bytes data
 	output = bytes.NewBufferString("")
-	resp, err = New().SetDebug(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
 		SetFormData(map[string]string{
 			"first_name": "Alex",
 			"last_name":  strings.Repeat("C", int(debugBodySizeLimit)),
@@ -1768,7 +1767,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// post form with no more than 512 bytes data
 	output = bytes.NewBufferString("")
-	resp, err = New().SetDebug(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
 		SetFormData(map[string]string{
 			"first_name": "Alex",
 			"last_name":  "C",
@@ -1782,7 +1781,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// post string with more than 512 bytes data
 	output = bytes.NewBufferString("")
-	resp, err = New().SetDebug(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
 		SetBody(`{
 			"first_name": "Alex",
 			"last_name": "`+strings.Repeat("C", int(debugBodySizeLimit))+`C",
@@ -1795,7 +1794,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// post slice with more than 512 bytes data
 	output = bytes.NewBufferString("")
-	resp, err = New().SetDebug(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
 		SetBody([]string{strings.Repeat("C", int(debugBodySizeLimit))}).
 		SetBasicAuth("myuser", "mypass").
 		Post(formTs.URL + "/profile")
