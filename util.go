@@ -20,6 +20,7 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"time"
 )
 
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -151,8 +152,12 @@ func (log *RequestLog) ReqHeader() http.Header {
 	return copyHeaders(log.r.Header)
 }
 
-func (log *ResponseLog) ReqMethod() string {
+func (log *RequestLog) ReqMethod() string {
 	return log.r.Method
+}
+
+func (log *RequestLog) ReqTime() time.Time {
+	return log.r.Time
 }
 
 func (log *RequestLog) ReqBody(maxLen int64, hideBody bool) string {
@@ -177,6 +182,18 @@ func (log *ResponseLog) ResCode() int {
 
 func (log *ResponseLog) ResBody(maxLen int64, hideBody bool) string {
 	return log.res.fmtBodyString(maxLen, hideBody)
+}
+
+func (log *ResponseLog) ResSize() int64 {
+	return log.res.Size()
+}
+
+func (log *ResponseLog) ReceivedTime() time.Time {
+	return log.res.ReceivedAt()
+}
+
+func (log *ResponseLog) ProcTime() time.Duration {
+	return log.res.Time()
 }
 
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
