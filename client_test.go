@@ -379,10 +379,6 @@ func TestClientOptions(t *testing.T) {
 	client.SetPrintLog(true)
 	assertEqual(t, client.PrintLog, true)
 
-	var sl int64 = 1000000
-	client.SetDebugBodyLimit(sl)
-	assertEqual(t, client.debugBodySizeLimit, sl)
-
 	client.SetAllowGetMethodPayload(true)
 	assertEqual(t, client.AllowGetMethodPayload, true)
 
@@ -471,42 +467,6 @@ func TestClientNewRequest(t *testing.T) {
 	c := New()
 	request := c.NewRequest()
 	assertNotNil(t, request)
-}
-
-func TestDebugBodySizeLimit(t *testing.T) {
-	ts := createGetServer(t)
-	defer ts.Close()
-
-	var lgr bytes.Buffer
-	c := dc()
-	c.SetPrintLog(true)
-	c.SetDebugBodyLimit(30)
-	c.outputLogTo(&lgr)
-
-	testcases := []struct{ url, want string }{
-		// Text, does not exceed limit.
-		{ts.URL, "TestGet: text response"},
-		// Empty response.
-		{ts.URL + "/no-content", "***** NO CONTENT *****"},
-		// JSON, does not exceed limit.
-		{ts.URL + "/json", "{\n   \"TestGet\": \"JSON response\"\n}"},
-		// Invalid JSON, does not exceed limit.
-		{ts.URL + "/json-invalid", "TestGet: Invalid JSON"},
-		// Text, exceeds limit.
-		{ts.URL + "/long-text", "RESPONSE TOO LARGE"},
-		// JSON, exceeds limit.
-		{ts.URL + "/long-json", "RESPONSE TOO LARGE"},
-	}
-
-	for _, tc := range testcases {
-		_, err := c.R().Get(tc.url)
-		assertError(t, err)
-		debugLog := lgr.String()
-		if !strings.Contains(debugLog, tc.want) {
-			t.Errorf("Expected logs to contain [%v], got [\n%v]", tc.want, debugLog)
-		}
-		lgr.Reset()
-	}
 }
 
 // CustomRoundTripper just for test

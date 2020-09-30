@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"math"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -108,24 +107,23 @@ type Client struct {
 	JSONMarshal           func(v interface{}) ([]byte, error)
 	JSONUnmarshal         func(data []byte, v interface{}) error
 
-	jsonEscapeHTML     bool
-	setContentLength   bool
-	closeConnection    bool
-	notParseResponse   bool
-	trace              bool
-	debugBodySizeLimit int64
-	outputDirectory    string
-	scheme             string
-	pathParams         map[string]string
-	log                Logger
-	httpClient         *http.Client
-	proxyURL           *url.URL
-	beforeRequest      []RequestMiddleware
-	udBeforeRequest    []RequestMiddleware
-	preReqHook         PreRequestHook
-	afterResponse      []ResponseMiddleware
-	requestLog         RequestLogCallback
-	responseLog        ResponseLogCallback
+	jsonEscapeHTML   bool
+	setContentLength bool
+	closeConnection  bool
+	notParseResponse bool
+	trace            bool
+	outputDirectory  string
+	scheme           string
+	pathParams       map[string]string
+	log              Logger
+	httpClient       *http.Client
+	proxyURL         *url.URL
+	beforeRequest    []RequestMiddleware
+	udBeforeRequest  []RequestMiddleware
+	preReqHook       PreRequestHook
+	afterResponse    []ResponseMiddleware
+	requestLog       RequestLogCallback
+	responseLog      ResponseLogCallback
 }
 
 // User type is to hold an username and password information
@@ -400,13 +398,6 @@ func (c *Client) SetPreRequestHook(h PreRequestHook) *Client {
 //		client.SetPrintLog(true)
 func (c *Client) SetPrintLog(p bool) *Client {
 	c.PrintLog = p
-	return c
-}
-
-// SetDebugBodyLimit sets the maximum size for which the response and request body will be logged in debug mode.
-//		client.SetDebugBodyLimit(1000000)
-func (c *Client) SetDebugBodyLimit(sl int64) *Client {
-	c.debugBodySizeLimit = sl
 	return c
 }
 
@@ -935,18 +926,17 @@ func createClient(hc *http.Client) *Client {
 	}
 
 	c := &Client{ // not setting lang default values
-		QueryParam:         url.Values{},
-		FormData:           url.Values{},
-		Header:             http.Header{},
-		Cookies:            make([]*http.Cookie, 0),
-		RetryWaitTime:      DefaultWaitTime,
-		RetryMaxWaitTime:   DefaultMaxWaitTime,
-		JSONMarshal:        json.Marshal,
-		JSONUnmarshal:      json.Unmarshal,
-		jsonEscapeHTML:     true,
-		httpClient:         hc,
-		debugBodySizeLimit: math.MaxInt32,
-		pathParams:         make(map[string]string),
+		QueryParam:       url.Values{},
+		FormData:         url.Values{},
+		Header:           http.Header{},
+		Cookies:          make([]*http.Cookie, 0),
+		RetryWaitTime:    DefaultWaitTime,
+		RetryMaxWaitTime: DefaultMaxWaitTime,
+		JSONMarshal:      json.Marshal,
+		JSONUnmarshal:    json.Unmarshal,
+		jsonEscapeHTML:   true,
+		httpClient:       hc,
+		pathParams:       make(map[string]string),
 	}
 
 	// Logger

@@ -1730,7 +1730,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// upload an image with more than 512 bytes
 	output := bytes.NewBufferString("")
-	resp, err := New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err := New().SetPrintLog(true).outputLogTo(output).R().
 		SetFile("file", filepath.Join(getTestDataPath(), "test-img.png")).
 		SetHeader("Content-Type", "image/png").
 		Post(ts.URL + "/upload")
@@ -1740,7 +1740,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// upload a text file with no more than 512 bytes
 	output = bytes.NewBufferString("")
-	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).R().
 		SetFile("file", filepath.Join(getTestDataPath(), "text-file.txt")).
 		SetHeader("Content-Type", "text/plain").
 		Post(ts.URL + "/upload")
@@ -1753,7 +1753,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// post form with more than 512 bytes data
 	output = bytes.NewBufferString("")
-	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).R().
 		SetFormData(map[string]string{
 			"first_name": "Alex",
 			"last_name":  strings.Repeat("C", int(debugBodySizeLimit)),
@@ -1767,7 +1767,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// post form with no more than 512 bytes data
 	output = bytes.NewBufferString("")
-	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).R().
 		SetFormData(map[string]string{
 			"first_name": "Alex",
 			"last_name":  "C",
@@ -1781,7 +1781,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// post string with more than 512 bytes data
 	output = bytes.NewBufferString("")
-	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).R().
 		SetBody(`{
 			"first_name": "Alex",
 			"last_name": "`+strings.Repeat("C", int(debugBodySizeLimit))+`C",
@@ -1794,7 +1794,7 @@ func TestDebugLoggerRequestBodyTooLarge(t *testing.T) {
 
 	// post slice with more than 512 bytes data
 	output = bytes.NewBufferString("")
-	resp, err = New().SetPrintLog(true).outputLogTo(output).SetDebugBodyLimit(debugBodySizeLimit).R().
+	resp, err = New().SetPrintLog(true).outputLogTo(output).R().
 		SetBody([]string{strings.Repeat("C", int(debugBodySizeLimit))}).
 		SetBasicAuth("myuser", "mypass").
 		Post(formTs.URL + "/profile")
