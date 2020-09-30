@@ -196,6 +196,10 @@ func (log *ResponseLog) ProcTime() time.Duration {
 	return log.res.Time()
 }
 
+func (log *ResponseLog) TraceInfo() TraceInfo {
+	return log.r.TraceInfo()
+}
+
 func (log *ResponseLog) Error() interface{} {
 	return log.res.Error()
 }
