@@ -85,6 +85,7 @@ func TestOnAfterMiddleware(t *testing.T) {
 
 	c := dc()
 	c.OnAfterResponse(func(c *Client, res *Response) error {
+		res.Error()
 		t.Logf("Request sent at: %v", res.Request.Time)
 		t.Logf("Response Received at: %v", res.ReceivedAt())
 
