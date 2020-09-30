@@ -530,7 +530,7 @@ func TestLogCallbacks(t *testing.T) {
 	assertEqual(t, true, strings.Contains(logInfo, "Modified the response body content"))
 
 	// Error scenario
-	c.OnRequestLog(func(r *RequestLog) error {
+	c.OnRequestLog(func(l Logger, r *RequestLog) error {
 		return errors.New("request test error")
 	})
 	resp, err = c.R().
@@ -540,7 +540,7 @@ func TestLogCallbacks(t *testing.T) {
 	assertNil(t, resp)
 
 	c.OnRequestLog(nil)
-	c.OnResponseLog(func(r *ResponseLog) error {
+	c.OnResponseLog(func(l Logger, r *ResponseLog) error {
 		return errors.New("response test error")
 	})
 	resp, err = c.R().

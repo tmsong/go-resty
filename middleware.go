@@ -271,7 +271,7 @@ func addCredentials(c *Client, r *Request) error {
 
 func requestLogger(c *Client, r *Request) error {
 	if c.PrintLog && c.requestLog != nil {
-		if err := c.requestLog(&RequestLog{r: r}); err != nil {
+		if err := c.requestLog(c.log, &RequestLog{r: r}); err != nil {
 			return err
 		}
 	}
@@ -284,7 +284,7 @@ func requestLogger(c *Client, r *Request) error {
 
 func responseLogger(c *Client, res *Response) error {
 	if c.PrintLog && c.responseLog != nil {
-		if err := c.responseLog(&ResponseLog{
+		if err := c.responseLog(c.log, &ResponseLog{
 			RequestLog: RequestLog{r: res.Request},
 			res:        res,
 		}); err != nil {

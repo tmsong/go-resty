@@ -76,10 +76,10 @@ type (
 	PreRequestHook func(*Client, *http.Request) error
 
 	// RequestLogCallback type is for request logs, called before the request is logged
-	RequestLogCallback func(*RequestLog) error
+	RequestLogCallback func(Logger, *RequestLog) error
 
 	// ResponseLogCallback type is for response logs, called before the response is logged
-	ResponseLogCallback func(*ResponseLog) error
+	ResponseLogCallback func(Logger, *ResponseLog) error
 )
 
 // Client struct is used to create Resty client with client level settings,
@@ -956,7 +956,6 @@ func createClient(hc *http.Client) *Client {
 
 	// default after response middlewares
 	c.afterResponse = []ResponseMiddleware{
-		responseLogger,
 		parseResponseBody,
 		saveResponseIntoFile,
 	}
