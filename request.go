@@ -757,10 +757,15 @@ func (r *Request) fmtBodyString(sl int64, hideBody bool) (body string) {
 	contentType := r.Header.Get(hdrContentTypeKey)
 	kind := kindOf(r.Body)
 	if canJSONMarshal(contentType, kind) {
-		prtBodyBytes, err = json.MarshalIndent(&r.Body, "", "   ")
+		// for one line output, no json.Indent
+		//prtBodyBytes, err = json.MarshalIndent(&r.Body, "", "   ")
+		prtBodyBytes, err = json.Marshal(&r.Body)
 	} else if IsXMLType(contentType) && (kind == reflect.Struct) {
-		prtBodyBytes, err = xml.MarshalIndent(&r.Body, "", "   ")
+		// for one line output, no json.Indent
+		//prtBodyBytes, err = xml.MarshalIndent(&r.Body, "", "   ")
+		prtBodyBytes, err = xml.Marshal(&r.Body)
 	} else if b, ok := r.Body.(string); ok {
+		/* for one line output, no json.Indent
 		if IsJSONType(contentType) {
 			bodyBytes := []byte(b)
 			out := acquireBuffer()
@@ -771,6 +776,8 @@ func (r *Request) fmtBodyString(sl int64, hideBody bool) (body string) {
 		} else {
 			body = b
 		}
+		*/
+		body = b
 	} else if b, ok := r.Body.([]byte); ok {
 		body = fmt.Sprintf("***** BODY IS byte(s) (size - %d) *****", len(b))
 		return
